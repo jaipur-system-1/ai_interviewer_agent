@@ -16,10 +16,10 @@ export const api = {
 
   // 2. Start Interview
   startInterview: async (candidateId: string, jobRole: string) => {
-    const res = await fetch(`${API_BASE_URL}/interviews/start`, {
+    const res = await fetch(`${API_BASE_URL}/interviews/start/practice`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ candidate_id: candidateId, job_role: jobRole }),
+      body: JSON.stringify({ clerk_id: candidateId, job_role: jobRole }),
     });
     if (!res.ok) throw new Error("Failed to start interview");
     return res.json();

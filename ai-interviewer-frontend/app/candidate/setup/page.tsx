@@ -37,19 +37,17 @@ export default function InterviewSetup() {
     try {
       const token = await getToken();
       
-      const res = await fetch(`http://localhost:8000/api/interviews/start`, {
+      const res = await fetch(`http://localhost:8000/api/interviews/start/practice`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}` 
         },
         body: JSON.stringify({
-          candidate_id: user?.id, 
+          clerk_id: user?.id,
           job_role: jobRole,
           difficulty: difficulty,
-          focus_area: focusArea,
           tech_stack: techStack,
-          personality: personality // Sending the new persona setting
         })
       });
 

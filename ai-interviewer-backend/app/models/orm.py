@@ -1,5 +1,5 @@
 from beanie import Document, Indexed
-from typing import List, Optional
+from typing import Annotated, List, Optional
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field, EmailStr
 from enum import Enum
@@ -120,9 +120,9 @@ class Candidate(Document):
 
 # --- 6. INTERVIEW (The Session) ---
 class Interview(Document):
-    clerk_id: Optional[str] = Indexed(default=None) # B2C
-    candidate_id: Optional[str] = Indexed(default=None) # B2B
-    job_id: Optional[str] = Indexed(default=None)      
+    clerk_id: Annotated[Optional[str], Indexed()] = None  # B2C
+    candidate_id: Annotated[Optional[str], Indexed()] = None  # B2B
+    job_id: Annotated[Optional[str], Indexed()] = None      
     
     job_role: str 
     status: str = "started"

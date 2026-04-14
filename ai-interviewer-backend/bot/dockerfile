@@ -1,0 +1,42 @@
+FROM python:3.10-slim
+
+# 1. Install System Dependencies & Audio Plugins
+RUN apt-get update && apt-get install -y \
+    wget gnupg xvfb pulseaudio ffmpeg sox libasound2 libasound2-plugins alsa-utils \
+    build-essential portaudio19-dev python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 2. Create the Non-Root User
+RUN useradd -m interviewer && \
+    usermod -aG audio,video interviewer && \
+    echo "interviewer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# 3. ALSA CONFIG: Tell PyAudio to strictly use PulseAudio
+# This file must be owned by the user, so we create it globally
+RUN echo "pcm.aiears { type pulse device \"AIEars.monitor\" }\nctl.aiears { type pulse }\npcm.!default { type pulse }\nctl.!default { type pulse }" > /etc/asound.conf
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
+
+WORKDIR /app
+
+# 4. Install Python Libs
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 5. Install Browsers Globally
+RUN playwright install --with-deps chromium && \
+    chmod -R 777 /opt/playwright
+
+# 6. Final Permissions
+COPY . .
+RUN chmod -R 777 /tmp && \
+    chown -R interviewer:interviewer /app && \
+    chmod +x entrypoint.sh
+
+# 7. SWITCH TO USER (Crucial for PyAudio compatibility)
+USER interviewer
+
+ENV DISPLAY=:99
+ENV PYTHONUNBUFFERED=1
+
+ENTRYPOINT ["./entrypoint.sh"]
